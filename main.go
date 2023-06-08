@@ -66,7 +66,7 @@ func main() {
 		case "lirs":
 			simulator = lirs.NewLIRS(cacheSize, 1)
 		case "lirs2":
-			simulator = lirs2.NewLIRS2(cacheSize)
+			simulator = lirs2.NewLIRS2(cacheSize, 1)
 		default:
 			log.Fatal("Algorithm not supported")
 		}
