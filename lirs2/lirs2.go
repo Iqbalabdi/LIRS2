@@ -2,6 +2,7 @@ package lirs2
 
 import (
 	"errors"
+	"fmt"
 	"github.com/secnot/orderedmap"
 	"lirs2/simulator"
 	"os"
@@ -51,15 +52,32 @@ func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 }
 
 func (LIRS2Object *LIRS2) PrintToFile(file *os.File, start time.Time) error {
-	//TODO implement me
-	panic("implement me")
+	duration := time.Since(start)
+	hitRatio := float64(LIRS2Object.hit) / float64(LIRS2Object.hit+LIRS2Object.miss) * 100
+	result := fmt.Sprintf(`-----------------------------------------------------
+LIRS2
+cache size : %v
+cache hit : %v
+cache miss : %v
+hit ratio : %v
+LIRS2Queue size : %v
+CoreQueue size : %v
+lir capacity: %v
+hir capacity: %v
+write count : %v
+duration : %v
+!LIRS2|%v|%v|%v
+`, LIRS2Object.cacheSize, LIRS2Object.hit, LIRS2Object.miss, hitRatio, LIRS2Object.Instance2Queue.Len()+LIRS2Object.Instance1Queue.Len(),
+		LIRS2Object.CoReQueue.Len(), LIRS2Object.LIRSize, LIRS2Object.HIRSize, LIRS2Object.writeCount, duration.Seconds(), LIRS2Object.cacheSize, LIRS2Object.hit, LIRS2Object.hit+LIRS2Object.miss)
+	_, err := file.WriteString(result)
+	return err
 }
 
 func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 	//init data
 	data := &Instance{
 		block:      trace.Address,
-		accessTime: time.Now().Unix(),
+		accessTime: time.Now().UnixNano(),
 	}
 
 	operation := trace.Operation
