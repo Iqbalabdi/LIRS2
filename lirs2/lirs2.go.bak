@@ -1,0 +1,181 @@
+package lirs2
+
+import (
+	"errors"
+	"fmt"
+	"github.com/secnot/orderedmap"
+	"lirs2/simulator"
+	"os"
+	"time"
+)
+
+type (
+	Instance struct {
+		block       int
+		isHot       bool
+		isInstance1 bool
+		isResident  bool
+	}
+
+	LIRS2 struct {
+		cacheSize  int
+		hit        int
+		miss       int
+		writeCount int
+		LIRSize    int
+		HIRSize    int
+		LIRS2Queue *orderedmap.OrderedMap
+		CoReQueue  *orderedmap.OrderedMap
+		LIR        map[interface{}]int
+		HIR        map[interface{}]int
+	}
+)
+
+func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
+	if HIRSize > 100 || HIRSize < 0 {
+		panic("HIRSize must be between 0 and 100")
+	}
+	LIRCapacity := (100 - HIRSize) * cacheSize / 100
+	HIRCapacity := HIRSize * cacheSize / 100
+	return &LIRS2{
+		cacheSize:  cacheSize,
+		hit:        0,
+		miss:       0,
+		writeCount: 0,
+		LIRSize:    LIRCapacity,
+		HIRSize:    HIRCapacity,
+		LIRS2Queue: orderedmap.NewOrderedMap(),
+		CoReQueue:  orderedmap.NewOrderedMap(),
+		LIR:        make(map[interface{}]int, LIRCapacity),
+		HIR:        make(map[interface{}]int, HIRCapacity),
+	}
+}
+
+func (LIRS2Object *LIRS2) PrintToFile(file *os.File, start time.Time) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
+	//TODO implement me
+	instance := Instance{
+		block:       trace.Address,
+		isHot:       false,
+		isInstance1: false,
+		isResident:  false,
+	}
+
+	operation := trace.Operation
+	if operation == "W" {
+		LIRS2Object.writeCount++
+	}
+	if len(LIRS2Object.LIR) < LIRS2Object.LIRSize {
+		// LIR is not full; there is space in cache
+		LIRS2Object.miss += 1
+		if _, ok := LIRS2Object.LIR[instance.block]; ok {
+			// block is in LIR, not a miss
+			LIRS2Object.miss -= 1
+			LIRS2Object.hit += 1
+		}
+		LIRS2Object.makeLIR(instance.block)
+		return nil
+	}
+
+	LIRS2Object.handleBlockAccess(instance)
+
+	if _, ok := LIRS2Object.LIR[instance.block]; ok {
+		// block is in LIR, hit
+		LIRS2Object.handleLIRBlock(instance.block)
+	} else if _, ok := LIRS2Object.HIR[instance.block]; ok {
+		// block is in HIR, hit
+		LIRS2Object.handleHIRResidentBlock(instance.block)
+	} else {
+		// block is not in LIR or HIR Resident, miss
+		LIRS2Object.handleHIRNonResidentBlock(instance.block)
+	}
+	return nil
+}
+
+func (LIRS2Object *LIRS2) addToLIRS2Queue(data Instance) {
+	if data.isInstance1 == true {
+		LIRS2Object.LIRS2Queue.Set(LIRS2Object.createMapKey(data.block, 1), data)
+	}
+	if data.isInstance1 == false {
+		LIRS2Object.LIRS2Queue.Set(LIRS2Object.createMapKey(data.block, 0), data)
+	}
+}
+
+func (LIRS2Object *LIRS2) createMapKey(block int, insFlag int) string {
+	return fmt.Sprintf("%d-%d", block, insFlag)
+}
+
+func (LIRS2Object *LIRS2) makeLIR(block int) {
+	LIRS2Object.LIR[block] = 1
+	LIRS2Object.removeFromCoreQueue(block)
+	delete(LIRS2Object.HIR, block)
+}
+
+func (LIRS2Object *LIRS2) handleLIRBlock(block int) {
+	LIRS2Object.hit += 1
+}
+
+func (LIRS2Object *LIRS2) handleHIRResidentBlock(block int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (LIRS2Object *LIRS2) handleHIRNonResidentBlock(block int) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (LIRS2Object *LIRS2) removeFromCoreQueue(block int) {
+	LIRS2Object.CoReQueue.Delete(block)
+}
+
+func (LIRS2Object *LIRS2) handleBlockAccess(instance *Instance) {
+	if data, ok := LIRS2Object.LIRS2Queue.Get(LIRS2Object.createMapKey(instance.block, 2)); ok {
+		if instance.isHot == false {
+			LIRS2Object.makeHot(instance)
+			LIRS2Object.stackPruning(true)
+		}
+		//TODO remove Instance2 from LIRS2Queue
+		LIRS2Object.LIRS2Queue.Delete(data)
+	} else {
+		LIRS2Object.makeCold(instance)
+	}
+
+	if data, ok := LIRS2Object.LIRS2Queue.Get(LIRS2Object.createMapKey(instance.block, 1)); ok {
+
+	}
+}
+
+func (LIRS2Object *LIRS2) makeCold(data *Instance) {
+	data.isHot = false
+}
+
+func (LIRS2Object *LIRS2) makeHot(data *Instance) {
+	data.isHot = true
+}
+
+func (LIRS2Object *LIRS2) stackPruning(removeHot bool) error {
+	_, val, ok := LIRS2Object.LIRS2Queue.PopFirst()
+	if !ok {
+		return errors.New("LIRS2Queue is empty")
+	}
+
+	if removeHot {
+		LIRS2Object.makeCold(val.(*Instance))
+		LIRS2Object.CoReQueue.Set(val.(*Instance).block, 1)
+		LIRS2Object.CoReQueue.MoveLast(val.(*Instance).block)
+	}
+
+	iter := LIRS2Object.LIRS2Queue.Iter()
+	for _, value, ok := iter.Next(); ok; _, value, ok = iter.Next() {
+		if value.(*Instance).isInstance1 == false {
+			break
+		}
+		LIRS2Object.LIRS2Queue.PopFirst()
+	}
+	return nil
+}
