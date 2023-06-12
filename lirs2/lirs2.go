@@ -171,18 +171,22 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 		LIRS2Object.addToCoreQueue(val.(*Instance).block)
 	}
 
+	// delete instance2 in queue if it is not LIR
 	iter := LIRS2Object.Instance2Queue.Iter()
 	for k, _, ok := iter.Next(); ok; k, _, ok = iter.Next() {
 		if LIRS2Object.LIRBlock[k] == 1 {
 			break
 		}
-		LIRS2Object.Instance2Queue.Delete(key)
+		LIRS2Object.Instance2Queue.Delete(k)
 	}
-	iter = LIRS2Object.Instance1Queue.Iter()
-	for _, v, ok := iter.Next(); ok; _, v, ok = iter.Next() {
-		if val.(*Instance).accessTime < v.(*Instance).accessTime {
 
+	// delete instance1 in queue if access-time is less than bottom instance2
+	iter = LIRS2Object.Instance1Queue.Iter()
+	for k, v, ok := iter.Next(); ok; k, v, ok = iter.Next() {
+		if val.(*Instance).accessTime < v.(*Instance).accessTime {
+			break
 		}
+		LIRS2Object.Instance1Queue.Delete(k)
 	}
 	return nil
 }
