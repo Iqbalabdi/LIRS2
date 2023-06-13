@@ -20,5 +20,6 @@
 # Go workspace file
 go.work
 test.go
+script_addOp.go
 /traces
 /traces_out

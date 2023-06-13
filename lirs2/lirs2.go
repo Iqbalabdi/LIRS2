@@ -51,28 +51,6 @@ func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 	}
 }
 
-func (LIRS2Object *LIRS2) PrintToFile(file *os.File, start time.Time) error {
-	duration := time.Since(start)
-	hitRatio := float64(LIRS2Object.hit) / float64(LIRS2Object.hit+LIRS2Object.miss) * 100
-	result := fmt.Sprintf(`-----------------------------------------------------
-LIRS2
-cache size : %v
-cache hit : %v
-cache miss : %v
-hit ratio : %v
-LIRS2Queue size : %v
-CoreQueue size : %v
-lir capacity: %v
-hir capacity: %v
-write count : %v
-duration : %v
-!LIRS2|%v|%v|%v
-`, LIRS2Object.cacheSize, LIRS2Object.hit, LIRS2Object.miss, hitRatio, LIRS2Object.Instance2Queue.Len()+LIRS2Object.Instance1Queue.Len(),
-		LIRS2Object.CoReQueue.Len(), LIRS2Object.LIRSize, LIRS2Object.HIRSize, LIRS2Object.writeCount, duration.Seconds(), LIRS2Object.cacheSize, LIRS2Object.hit, LIRS2Object.hit+LIRS2Object.miss)
-	_, err := file.WriteString(result)
-	return err
-}
-
 func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 	//init data
 	data := &Instance{
@@ -107,12 +85,6 @@ func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 		LIRS2Object.handleHIRNonResidentBlock(data)
 	}
 	return nil
-}
-
-func (LIRS2Object *LIRS2) makeLIR(data *Instance) {
-	LIRS2Object.LIRBlock[data.block] = 1
-	LIRS2Object.removeFromCoreQueue(data.block)
-	delete(LIRS2Object.HIRBlock, data.block)
 }
 
 func (LIRS2Object *LIRS2) handleLIRBlock(data *Instance) {
@@ -157,8 +129,10 @@ func (LIRS2Object *LIRS2) handleHIRNonResidentBlock(data *Instance) {
 	LIRS2Object.Instance1Queue.Set(data.block, data)
 }
 
-func (LIRS2Object *LIRS2) removeFromCoreQueue(block int) {
-	LIRS2Object.CoReQueue.Delete(block)
+func (LIRS2Object *LIRS2) makeLIR(data *Instance) {
+	LIRS2Object.LIRBlock[data.block] = 1
+	LIRS2Object.removeFromCoreQueue(data.block)
+	delete(LIRS2Object.HIRBlock, data.block)
 }
 
 func (LIRS2Object *LIRS2) makeHIR(data *Instance) {
@@ -167,15 +141,20 @@ func (LIRS2Object *LIRS2) makeHIR(data *Instance) {
 }
 
 func (LIRS2Object *LIRS2) changeToInstance2(data *Instance) {
-	LIRS2Object.Instance1Queue.Delete(data.block)
-	LIRS2Object.Instance2Queue.Set(data.block, data)
+	val, _ := LIRS2Object.Instance1Queue.Get(data.block)
+	LIRS2Object.Instance1Queue.Delete(val.(*Instance).block)
+	LIRS2Object.Instance2Queue.Set(val.(*Instance).block, val)
 }
 
 func (LIRS2Object *LIRS2) addToCoreQueue(block int) {
-	if LIRS2Object.CoReQueue.Len() < LIRS2Object.HIRSize {
+	if LIRS2Object.CoReQueue.Len() == LIRS2Object.HIRSize {
 		LIRS2Object.CoReQueue.PopFirst()
 	}
 	LIRS2Object.CoReQueue.Set(block, 1)
+}
+
+func (LIRS2Object *LIRS2) removeFromCoreQueue(block int) {
+	LIRS2Object.CoReQueue.Delete(block)
 }
 
 func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
@@ -207,4 +186,25 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 		LIRS2Object.Instance1Queue.Delete(k)
 	}
 	return nil
+}
+
+func (LIRS2Object *LIRS2) PrintToFile(file *os.File, start time.Time) error {
+	timeExec := time.Since(start)
+	hitRatio := float64(LIRS2Object.hit) / float64(LIRS2Object.hit+LIRS2Object.miss) * 100
+	result := fmt.Sprintf(`-----------------------------------------------------
+LIRS2
+cache size : %v
+cache hit : %v
+cache miss : %v
+hit ratio : %v
+LIRS2Queue size : %v
+CoreQueue size : %v
+LIR capacity: %v
+HIR capacity: %v
+write count : %v
+time execution : %v
+`, LIRS2Object.cacheSize, LIRS2Object.hit, LIRS2Object.miss, hitRatio, LIRS2Object.Instance2Queue.Len()+LIRS2Object.Instance1Queue.Len(),
+		LIRS2Object.CoReQueue.Len(), LIRS2Object.LIRSize, LIRS2Object.HIRSize, LIRS2Object.writeCount, timeExec.Seconds())
+	_, err := file.WriteString(result)
+	return err
 }

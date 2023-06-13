@@ -64,9 +64,9 @@ func main() {
 	for _, cacheSize := range cacheList {
 		switch strings.ToLower(algorithm) {
 		case "lirs":
-			simulator = lirs.NewLIRS(cacheSize, 1)
+			simulator = lirs.NewLIRS(cacheSize, 10)
 		case "lirs2":
-			simulator = lirs2.NewLIRS2(cacheSize, 1)
+			simulator = lirs2.NewLIRS2(cacheSize, 10)
 		default:
 			log.Fatal("Algorithm not supported")
 		}
