@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"lirs2/lirs"
 	"lirs2/lirs2"
+	"lirs2/lru"
 	"lirs2/simulator"
 	"log"
 	"os"
@@ -49,7 +50,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	outPath = fmt.Sprintf("%v_%v_%v.txt", time.Now().Unix(), algorithm, fileInfo.Name())
+	outPath = fmt.Sprintf("./output/%v_%v_%v.txt", time.Now().Unix(), algorithm, fileInfo.Name())
 	if output, err = os.Create(outPath); err != nil {
 		log.Fatalf("Error creating file %v: %v\n", outPath, err)
 	}
@@ -64,15 +65,16 @@ func main() {
 	for _, cacheSize := range cacheList {
 		switch strings.ToLower(algorithm) {
 		case "lirs":
-			simulator = lirs.NewLIRS(cacheSize, 10)
+			simulator = lirs.NewLIRS(cacheSize, 5)
 		case "lirs2":
-			simulator = lirs2.NewLIRS2(cacheSize, 10)
+			simulator = lirs2.NewLIRS2(cacheSize, 5)
+		case "lru":
+			simulator = lru.NewLRU(cacheSize)
 		default:
 			log.Fatal("Algorithm not supported")
 		}
 
 		timeStart = time.Now()
-
 		for _, trace := range traces {
 			err = simulator.Get(trace)
 			if err != nil {

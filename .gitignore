@@ -13,13 +13,16 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-
+*.txt
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
 # Go workspace file
 go.work
 test.go
-script_addOp.go
+/converter/split_financial
+/converter/split_websearch
 /traces
 /traces_out
+/output
+/lru

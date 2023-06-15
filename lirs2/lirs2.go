@@ -5,21 +5,24 @@ import (
 	"fmt"
 	"github.com/secnot/orderedmap"
 	"lirs2/simulator"
+	"log"
 	"os"
 	"time"
 )
 
 type (
 	Instance struct {
-		block      int
-		accessTime int64
+		block       int
+		accessCount int
 	}
 
 	LIRS2 struct {
+		accessCounter  int
 		cacheSize      int
 		hit            int
 		miss           int
 		writeCount     int
+		readCount      int
 		LIRSize        int
 		HIRSize        int
 		Instance1Queue *orderedmap.OrderedMap
@@ -30,6 +33,17 @@ type (
 	}
 )
 
+var InfoLogger *log.Logger
+
+func init() {
+	f, err := os.OpenFile("logfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+
+	InfoLogger = log.New(f, "INFO: ", log.LstdFlags)
+}
+
 func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 	if HIRSize > 100 || HIRSize < 0 {
 		panic("HIRSize must be between 0 and 100")
@@ -37,10 +51,12 @@ func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 	LIRCapacity := (100 - HIRSize) * cacheSize / 100
 	HIRCapacity := HIRSize * cacheSize / 100
 	return &LIRS2{
+		accessCounter:  0,
 		cacheSize:      cacheSize,
 		hit:            0,
 		miss:           0,
 		writeCount:     0,
+		readCount:      0,
 		LIRSize:        LIRCapacity,
 		HIRSize:        HIRCapacity,
 		Instance1Queue: orderedmap.NewOrderedMap(),
@@ -53,14 +69,17 @@ func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 
 func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 	//init data
+	LIRS2Object.accessCounter++
 	data := &Instance{
-		block:      trace.Address,
-		accessTime: time.Now().UnixNano(),
+		block:       trace.Address,
+		accessCount: LIRS2Object.accessCounter,
 	}
 
 	operation := trace.Operation
 	if operation == "W" {
 		LIRS2Object.writeCount++
+	} else {
+		LIRS2Object.readCount++
 	}
 	if len(LIRS2Object.LIRBlock) < LIRS2Object.LIRSize {
 		// LIRBlock is not full; there is space in cache
@@ -90,13 +109,13 @@ func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 func (LIRS2Object *LIRS2) handleLIRBlock(data *Instance) {
 	LIRS2Object.hit += 1
 	if _, ok := LIRS2Object.Instance2Queue.Get(data.block); ok {
-		if key, _, _ := LIRS2Object.Instance2Queue.GetFirst(); key == data.block {
+		if key, _, _ := LIRS2Object.Instance2Queue.GetFirst(); key.(int) == data.block {
 			LIRS2Object.stackPruning(false)
 		}
 		LIRS2Object.Instance2Queue.Delete(data.block)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
-		LIRS2Object.changeToInstance2(data)
+		LIRS2Object.changeToInstance2(data.block)
 	}
 	LIRS2Object.Instance1Queue.Set(data.block, data)
 }
@@ -109,7 +128,7 @@ func (LIRS2Object *LIRS2) handleHIRResidentBlock(data *Instance) {
 		LIRS2Object.stackPruning(true)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
-		LIRS2Object.changeToInstance2(data)
+		LIRS2Object.changeToInstance2(data.block)
 	}
 	LIRS2Object.CoReQueue.MoveLast(data.block)
 	LIRS2Object.Instance1Queue.Set(data.block, data)
@@ -119,10 +138,11 @@ func (LIRS2Object *LIRS2) handleHIRNonResidentBlock(data *Instance) {
 	LIRS2Object.miss += 1
 	if _, ok := LIRS2Object.Instance2Queue.Get(data.block); ok {
 		LIRS2Object.makeLIR(data)
+		LIRS2Object.removeFromCoreQueue(data.block)
 		LIRS2Object.stackPruning(true)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
-		LIRS2Object.changeToInstance2(data)
+		LIRS2Object.changeToInstance2(data.block)
 	}
 	LIRS2Object.makeHIR(data)
 	LIRS2Object.addToCoreQueue(data.block)
@@ -140,10 +160,11 @@ func (LIRS2Object *LIRS2) makeHIR(data *Instance) {
 	delete(LIRS2Object.LIRBlock, data.block)
 }
 
-func (LIRS2Object *LIRS2) changeToInstance2(data *Instance) {
-	val, _ := LIRS2Object.Instance1Queue.Get(data.block)
+func (LIRS2Object *LIRS2) changeToInstance2(block int) {
+	val, _ := LIRS2Object.Instance1Queue.Get(block)
 	LIRS2Object.Instance1Queue.Delete(val.(*Instance).block)
 	LIRS2Object.Instance2Queue.Set(val.(*Instance).block, val)
+	LIRS2Object.Instance2Queue.MoveLast(val.(*Instance).block)
 }
 
 func (LIRS2Object *LIRS2) addToCoreQueue(block int) {
@@ -158,7 +179,7 @@ func (LIRS2Object *LIRS2) removeFromCoreQueue(block int) {
 }
 
 func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
-	_, val, ok := LIRS2Object.Instance2Queue.GetFirst()
+	_, val, ok := LIRS2Object.Instance2Queue.PopFirst()
 	if !ok {
 		return errors.New("Instance2Queue is empty")
 	}
@@ -171,40 +192,42 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 	// delete instance2 in queue if it is not LIR
 	iter := LIRS2Object.Instance2Queue.Iter()
 	for k, _, ok := iter.Next(); ok; k, _, ok = iter.Next() {
-		if LIRS2Object.LIRBlock[k] == 1 {
+		if _, ok := LIRS2Object.LIRBlock[k]; ok {
 			break
 		}
-		LIRS2Object.Instance2Queue.Delete(k)
+		LIRS2Object.Instance2Queue.PopFirst()
 	}
 
 	// delete instance1 in queue if access-time is less than bottom instance2
 	iter = LIRS2Object.Instance1Queue.Iter()
-	for k, v, ok := iter.Next(); ok; k, v, ok = iter.Next() {
-		if val.(*Instance).accessTime < v.(*Instance).accessTime {
+	for _, v, ok := iter.Next(); ok; _, v, ok = iter.Next() {
+		if val.(*Instance).accessCount < v.(*Instance).accessCount {
 			break
 		}
-		LIRS2Object.Instance1Queue.Delete(k)
+		LIRS2Object.Instance1Queue.PopFirst()
 	}
 	return nil
 }
 
 func (LIRS2Object *LIRS2) PrintToFile(file *os.File, start time.Time) error {
 	timeExec := time.Since(start)
-	hitRatio := float64(LIRS2Object.hit) / float64(LIRS2Object.hit+LIRS2Object.miss) * 100
+	hitRatio := float32(LIRS2Object.hit) / float32(LIRS2Object.hit+LIRS2Object.miss) * 100
 	result := fmt.Sprintf(`-----------------------------------------------------
 LIRS2
 cache size : %v
 cache hit : %v
 cache miss : %v
 hit ratio : %v
-LIRS2Queue size : %v
+Instance2Queue : %v
+Instance1Queue : %v
 CoreQueue size : %v
 LIR capacity: %v
 HIR capacity: %v
 write count : %v
+read count : %v
 time execution : %v
-`, LIRS2Object.cacheSize, LIRS2Object.hit, LIRS2Object.miss, hitRatio, LIRS2Object.Instance2Queue.Len()+LIRS2Object.Instance1Queue.Len(),
-		LIRS2Object.CoReQueue.Len(), LIRS2Object.LIRSize, LIRS2Object.HIRSize, LIRS2Object.writeCount, timeExec.Seconds())
+`, LIRS2Object.cacheSize, LIRS2Object.hit, LIRS2Object.miss, hitRatio, LIRS2Object.Instance2Queue.Len(), LIRS2Object.Instance1Queue.Len(),
+		LIRS2Object.CoReQueue.Len(), LIRS2Object.LIRSize, LIRS2Object.HIRSize, LIRS2Object.writeCount, LIRS2Object.readCount, timeExec.Seconds())
 	_, err := file.WriteString(result)
 	return err
 }

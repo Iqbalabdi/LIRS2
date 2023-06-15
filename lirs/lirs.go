@@ -93,8 +93,7 @@ lir capacity: %v
 hir capacity: %v
 write count : %v
 duration : %v
-!LIRS|%v|%v|%v
-`, LIRSObject.cacheSize, LIRSObject.hit, LIRSObject.miss, hitRatio, LIRSObject.orderedStack.Len(), LIRSObject.orderedList.Len(), LIRSObject.LIRSize, LIRSObject.HIRSize, LIRSObject.writeCount, duration.Seconds(), LIRSObject.cacheSize, LIRSObject.hit, LIRSObject.hit+LIRSObject.miss)
+`, LIRSObject.cacheSize, LIRSObject.hit, LIRSObject.miss, hitRatio, LIRSObject.orderedStack.Len(), LIRSObject.orderedList.Len(), LIRSObject.LIRSize, LIRSObject.HIRSize, LIRSObject.writeCount, duration.Seconds())
 	_, err = file.WriteString(result)
 	return err
 }
