@@ -65,9 +65,9 @@ func main() {
 	for _, cacheSize := range cacheList {
 		switch strings.ToLower(algorithm) {
 		case "lirs":
-			simulator = lirs.NewLIRS(cacheSize, 5)
+			simulator = lirs.NewLIRS(cacheSize, 1)
 		case "lirs2":
-			simulator = lirs2.NewLIRS2(cacheSize, 5)
+			simulator = lirs2.NewLIRS2(cacheSize, 1)
 		case "lru":
 			simulator = lru.NewLRU(cacheSize)
 		default:

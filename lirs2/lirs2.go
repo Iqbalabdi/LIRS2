@@ -3,7 +3,7 @@ package lirs2
 import (
 	"errors"
 	"fmt"
-	"github.com/secnot/orderedmap"
+	"lirs2/pkg/orderedmap"
 	"lirs2/simulator"
 	"log"
 	"os"
@@ -17,19 +17,20 @@ type (
 	}
 
 	LIRS2 struct {
-		accessCounter  int
-		cacheSize      int
-		hit            int
-		miss           int
-		writeCount     int
-		readCount      int
-		LIRSize        int
-		HIRSize        int
-		Instance1Queue *orderedmap.OrderedMap
-		Instance2Queue *orderedmap.OrderedMap
-		CoReQueue      *orderedmap.OrderedMap
-		LIRBlock       map[interface{}]int
-		HIRBlock       map[interface{}]int
+		accessCounter   int
+		cacheSize       int
+		hit             int
+		miss            int
+		writeCount      int
+		readCount       int
+		LIRSize         int
+		HIRSize         int
+		Instance1Queue  *orderedmap.OrderedMap
+		Instance2Queue  *orderedmap.OrderedMap
+		CoReQueue       *orderedmap.OrderedMap
+		LIRBlock        map[interface{}]int
+		HIRBlock        map[interface{}]int
+		Instance2Access map[interface{}]int
 	}
 )
 
@@ -51,19 +52,20 @@ func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 	LIRCapacity := (100 - HIRSize) * cacheSize / 100
 	HIRCapacity := HIRSize * cacheSize / 100
 	return &LIRS2{
-		accessCounter:  0,
-		cacheSize:      cacheSize,
-		hit:            0,
-		miss:           0,
-		writeCount:     0,
-		readCount:      0,
-		LIRSize:        LIRCapacity,
-		HIRSize:        HIRCapacity,
-		Instance1Queue: orderedmap.NewOrderedMap(),
-		Instance2Queue: orderedmap.NewOrderedMap(),
-		CoReQueue:      orderedmap.NewOrderedMap(),
-		LIRBlock:       make(map[interface{}]int, LIRCapacity),
-		HIRBlock:       make(map[interface{}]int, HIRCapacity),
+		accessCounter:   0,
+		cacheSize:       cacheSize,
+		hit:             0,
+		miss:            0,
+		writeCount:      0,
+		readCount:       0,
+		LIRSize:         LIRCapacity,
+		HIRSize:         HIRCapacity,
+		Instance1Queue:  orderedmap.NewOrderedMap(),
+		Instance2Queue:  orderedmap.NewOrderedMap(),
+		CoReQueue:       orderedmap.NewOrderedMap(),
+		LIRBlock:        make(map[interface{}]int, LIRCapacity),
+		HIRBlock:        make(map[interface{}]int, HIRCapacity),
+		Instance2Access: map[interface{}]int{},
 	}
 }
 
@@ -88,8 +90,11 @@ func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 			// block is in LIRBlock, not a miss
 			LIRS2Object.miss -= 1
 			LIRS2Object.hit += 1
+			LIRS2Object.changeToInstance2(data)
+		} else {
+			LIRS2Object.makeLIR(data)
 		}
-		LIRS2Object.makeLIR(data)
+		LIRS2Object.Instance1Queue.Set(data.block, data)
 		return nil
 	}
 
@@ -115,7 +120,7 @@ func (LIRS2Object *LIRS2) handleLIRBlock(data *Instance) {
 		LIRS2Object.Instance2Queue.Delete(data.block)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
-		LIRS2Object.changeToInstance2(data.block)
+		LIRS2Object.changeToInstance2(data)
 	}
 	LIRS2Object.Instance1Queue.Set(data.block, data)
 }
@@ -128,7 +133,7 @@ func (LIRS2Object *LIRS2) handleHIRResidentBlock(data *Instance) {
 		LIRS2Object.stackPruning(true)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
-		LIRS2Object.changeToInstance2(data.block)
+		LIRS2Object.changeToInstance2(data)
 	}
 	LIRS2Object.CoReQueue.MoveLast(data.block)
 	LIRS2Object.Instance1Queue.Set(data.block, data)
@@ -142,7 +147,7 @@ func (LIRS2Object *LIRS2) handleHIRNonResidentBlock(data *Instance) {
 		LIRS2Object.stackPruning(true)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
-		LIRS2Object.changeToInstance2(data.block)
+		LIRS2Object.changeToInstance2(data)
 	}
 	LIRS2Object.makeHIR(data)
 	LIRS2Object.addToCoreQueue(data.block)
@@ -160,11 +165,28 @@ func (LIRS2Object *LIRS2) makeHIR(data *Instance) {
 	delete(LIRS2Object.LIRBlock, data.block)
 }
 
-func (LIRS2Object *LIRS2) changeToInstance2(block int) {
-	val, _ := LIRS2Object.Instance1Queue.Get(block)
+func (LIRS2Object *LIRS2) changeToInstance2(data *Instance) {
+	val, _ := LIRS2Object.Instance1Queue.Get(data.block)
 	LIRS2Object.Instance1Queue.Delete(val.(*Instance).block)
 	LIRS2Object.Instance2Queue.Set(val.(*Instance).block, val)
-	LIRS2Object.Instance2Queue.MoveLast(val.(*Instance).block)
+	//LIRS2Object.Instance2Queue.MoveLast(val.(*Instance).block)
+
+	LIRS2Object.Instance2Access[val.(*Instance).accessCount] = val.(*Instance).block
+	for i := val.(*Instance).accessCount + 1; i <= LIRS2Object.accessCounter; i++ {
+		if block, ok := LIRS2Object.Instance2Access[i]; ok {
+			LIRS2Object.Instance2Queue.MoveToSpecificIndex(val.(*Instance).block, block)
+			break
+		}
+	}
+	//iter := LIRS2Object.Instance2Queue.Iter()
+	//for _, v, ok := iter.Next(); ok; _, v, ok = iter.Next() {
+	//	if val.(*Instance).accessCount < v.(*Instance).accessCount {
+	//		//fmt.Println("move to specific index and access Count", val.(*Instance).accessCount, v.(*Instance).accessCount)
+	//		LIRS2Object.Instance2Queue.MoveToSpecificIndex(val.(*Instance).block, v.(*Instance).block)
+	//		//fmt.Println("done")
+	//		break
+	//	}
+	//}
 }
 
 func (LIRS2Object *LIRS2) addToCoreQueue(block int) {
@@ -191,10 +213,11 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 
 	// delete instance2 in queue if it is not LIR
 	iter := LIRS2Object.Instance2Queue.Iter()
-	for k, _, ok := iter.Next(); ok; k, _, ok = iter.Next() {
+	for k, v, ok := iter.Next(); ok; k, v, ok = iter.Next() {
 		if _, ok := LIRS2Object.LIRBlock[k]; ok {
 			break
 		}
+		delete(LIRS2Object.Instance2Access, v.(*Instance).accessCount)
 		LIRS2Object.Instance2Queue.PopFirst()
 	}
 
@@ -203,6 +226,9 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 	for _, v, ok := iter.Next(); ok; _, v, ok = iter.Next() {
 		if val.(*Instance).accessCount < v.(*Instance).accessCount {
 			break
+		}
+		if _, ok := LIRS2Object.LIRBlock[v.(*Instance).block]; ok {
+			delete(LIRS2Object.LIRBlock, v.(*Instance).block)
 		}
 		LIRS2Object.Instance1Queue.PopFirst()
 	}
@@ -226,8 +252,9 @@ HIR capacity: %v
 write count : %v
 read count : %v
 time execution : %v
+access count : %v
 `, LIRS2Object.cacheSize, LIRS2Object.hit, LIRS2Object.miss, hitRatio, LIRS2Object.Instance2Queue.Len(), LIRS2Object.Instance1Queue.Len(),
-		LIRS2Object.CoReQueue.Len(), LIRS2Object.LIRSize, LIRS2Object.HIRSize, LIRS2Object.writeCount, LIRS2Object.readCount, timeExec.Seconds())
+		LIRS2Object.CoReQueue.Len(), LIRS2Object.LIRSize, LIRS2Object.HIRSize, LIRS2Object.writeCount, LIRS2Object.readCount, timeExec.Seconds(), LIRS2Object.accessCounter)
 	_, err := file.WriteString(result)
 	return err
 }

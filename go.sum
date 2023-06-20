@@ -1,3 +1,5 @@
+github.com/matheusoliveira/go-ordered-map v0.2.0 h1:sZrRbKFm2ua0F/WelkdxaCsAi9KlPy7514X/Ga5+Srk=
+github.com/matheusoliveira/go-ordered-map v0.2.0/go.mod h1:cUEgFKuM3PhY1/kNtWI3qRGj/DRTSylD3lhMIpntf/g=
 github.com/petar/GoLLRB v0.0.0-20210522233825-ae3b015fd3e9 h1:1/WtZae0yGtPq+TI6+Tv1WTxkukpXeMlviSxvL7SRgk=
 github.com/petar/GoLLRB v0.0.0-20210522233825-ae3b015fd3e9/go.mod h1:x3N5drFsm2uilKKuuYo6LdyD8vZAW55sH/9w+pbo1sw=
 github.com/secnot/orderedmap v0.0.0-20170705091748-a05363cca499 h1:kUHtr4YDm7xYD3NXTNT7PNs58vtpSCuItmIKKG3DUIQ=

@@ -11,18 +11,18 @@ import (
 
 func main() {
 
-	searchDir := "./traces"
+	searchDir := "../traces/MSR-Cambridge/"
 	e := filepath.Walk(searchDir, func(path string, f os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if strings.HasSuffix(path, ".blkparse") {
+		if strings.HasSuffix(path, ".csv") {
 			writeToFile(path)
 		}
 		return nil
 	})
 	if e != nil {
-		panic(e)
+		return //fmt.Errorf("filepath.Walk() returned %v\n", e)
 	}
 }
 
@@ -33,7 +33,7 @@ func writeToFile(path string) {
 		f    *os.File
 	)
 
-	file, err = os.OpenFile("./traces_out/fiu.web", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	file, err = os.OpenFile("../traces_out/msr_src1", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -48,11 +48,15 @@ func writeToFile(path string) {
 	scanner := bufio.NewScanner(f)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
-		row := strings.Split(scanner.Text(), " ")
-		if _, err := file.WriteString(row[3] + "," + row[5] + "\n"); err != nil {
+		row := strings.Split(scanner.Text(), ",")
+		if row[3] == "Write" {
+			row[3] = "W"
+		} else {
+			row[3] = "R"
+		}
+		if _, err := file.WriteString(row[4] + "," + row[3] + "\n"); err != nil {
 			log.Fatal(err)
 		}
 	}
 	fmt.Print("Done")
-
 }
