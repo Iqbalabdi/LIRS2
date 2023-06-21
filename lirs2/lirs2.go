@@ -90,7 +90,12 @@ func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 			// block is in LIRBlock, not a miss
 			LIRS2Object.miss -= 1
 			LIRS2Object.hit += 1
-			LIRS2Object.changeToInstance2(data)
+			if _, ok := LIRS2Object.Instance2Queue.Get(data.block); ok {
+				LIRS2Object.Instance2Queue.Delete(data.block)
+			}
+			if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
+				LIRS2Object.changeToInstance2(data)
+			}
 		} else {
 			LIRS2Object.makeLIR(data)
 		}
@@ -116,8 +121,9 @@ func (LIRS2Object *LIRS2) handleLIRBlock(data *Instance) {
 	if _, ok := LIRS2Object.Instance2Queue.Get(data.block); ok {
 		if key, _, _ := LIRS2Object.Instance2Queue.GetFirst(); key.(int) == data.block {
 			LIRS2Object.stackPruning(false)
+		} else {
+			LIRS2Object.Instance2Queue.Delete(data.block)
 		}
-		LIRS2Object.Instance2Queue.Delete(data.block)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
 		LIRS2Object.changeToInstance2(data)
@@ -129,7 +135,7 @@ func (LIRS2Object *LIRS2) handleHIRResidentBlock(data *Instance) {
 	LIRS2Object.hit += 1
 	if _, ok := LIRS2Object.Instance2Queue.Get(data.block); ok {
 		LIRS2Object.makeLIR(data)
-		LIRS2Object.removeFromCoreQueue(data.block)
+		LIRS2Object.Instance2Queue.Delete(data.block)
 		LIRS2Object.stackPruning(true)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
@@ -143,8 +149,9 @@ func (LIRS2Object *LIRS2) handleHIRNonResidentBlock(data *Instance) {
 	LIRS2Object.miss += 1
 	if _, ok := LIRS2Object.Instance2Queue.Get(data.block); ok {
 		LIRS2Object.makeLIR(data)
-		LIRS2Object.removeFromCoreQueue(data.block)
+		LIRS2Object.Instance2Queue.Delete(data.block)
 		LIRS2Object.stackPruning(true)
+
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
 		LIRS2Object.changeToInstance2(data)
@@ -169,7 +176,6 @@ func (LIRS2Object *LIRS2) changeToInstance2(data *Instance) {
 	val, _ := LIRS2Object.Instance1Queue.Get(data.block)
 	LIRS2Object.Instance1Queue.Delete(val.(*Instance).block)
 	LIRS2Object.Instance2Queue.Set(val.(*Instance).block, val)
-	//LIRS2Object.Instance2Queue.MoveLast(val.(*Instance).block)
 
 	LIRS2Object.Instance2Access[val.(*Instance).accessCount] = val.(*Instance).block
 	for i := val.(*Instance).accessCount + 1; i <= LIRS2Object.accessCounter; i++ {
@@ -201,6 +207,8 @@ func (LIRS2Object *LIRS2) removeFromCoreQueue(block int) {
 }
 
 func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
+	var flag *Instance
+
 	_, val, ok := LIRS2Object.Instance2Queue.PopFirst()
 	if !ok {
 		return errors.New("Instance2Queue is empty")
@@ -215,6 +223,7 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 	iter := LIRS2Object.Instance2Queue.Iter()
 	for k, v, ok := iter.Next(); ok; k, v, ok = iter.Next() {
 		if _, ok := LIRS2Object.LIRBlock[k]; ok {
+			flag = v.(*Instance)
 			break
 		}
 		delete(LIRS2Object.Instance2Access, v.(*Instance).accessCount)
@@ -224,7 +233,7 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 	// delete instance1 in queue if access-time is less than bottom instance2
 	iter = LIRS2Object.Instance1Queue.Iter()
 	for _, v, ok := iter.Next(); ok; _, v, ok = iter.Next() {
-		if val.(*Instance).accessCount < v.(*Instance).accessCount {
+		if flag.accessCount < v.(*Instance).accessCount {
 			break
 		}
 		if _, ok := LIRS2Object.LIRBlock[v.(*Instance).block]; ok {
