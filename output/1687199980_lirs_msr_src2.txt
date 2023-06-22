@@ -1,0 +1,216 @@
+_______________________________________________________
+LIRS
+cache size : 100
+cache hit : 1165573
+cache miss : 2206900
+hit ratio : 34.561375
+stack size : 2732
+list size : 1
+lir capacity: 99
+hir capacity: 1
+write count : 2201144
+duration : 1.760429
+_______________________________________________________
+LIRS
+cache size : 1000
+cache hit : 1269515
+cache miss : 2102958
+hit ratio : 37.643444
+stack size : 7158
+list size : 10
+lir capacity: 990
+hir capacity: 10
+write count : 2201144
+duration : 1.876786
+_______________________________________________________
+LIRS
+cache size : 10000
+cache hit : 1441989
+cache miss : 1930484
+hit ratio : 42.757614
+stack size : 35071
+list size : 100
+lir capacity: 9900
+hir capacity: 100
+write count : 2201144
+duration : 1.941354
+_______________________________________________________
+LIRS
+cache size : 100000
+cache hit : 1704447
+cache miss : 1668026
+hit ratio : 50.539978
+stack size : 721476
+list size : 1000
+lir capacity: 99000
+hir capacity: 1000
+write count : 2201144
+duration : 1.9479381999999998
+_______________________________________________________
+LIRS
+cache size : 200000
+cache hit : 1803927
+cache miss : 1568546
+hit ratio : 53.48974
+stack size : 1025965
+list size : 2000
+lir capacity: 198000
+hir capacity: 2000
+write count : 2201144
+duration : 1.8530449
+_______________________________________________________
+LIRS
+cache size : 300000
+cache hit : 1918401
+cache miss : 1454072
+hit ratio : 56.884106
+stack size : 1039581
+list size : 3000
+lir capacity: 297000
+hir capacity: 3000
+write count : 2201144
+duration : 1.936257
+_______________________________________________________
+LIRS
+cache size : 400000
+cache hit : 1985245
+cache miss : 1387228
+hit ratio : 58.86615
+stack size : 1104473
+list size : 4000
+lir capacity: 396000
+hir capacity: 4000
+write count : 2201144
+duration : 1.6763419000000002
+_______________________________________________________
+LIRS
+cache size : 500000
+cache hit : 2016610
+cache miss : 1355863
+hit ratio : 59.796177
+stack size : 1159528
+list size : 5000
+lir capacity: 495000
+hir capacity: 5000
+write count : 2201144
+duration : 1.4574312
+_______________________________________________________
+LIRS
+cache size : 600000
+cache hit : 2038379
+cache miss : 1334094
+hit ratio : 60.441673
+stack size : 1195608
+list size : 6000
+lir capacity: 594000
+hir capacity: 6000
+write count : 2201144
+duration : 1.3712017
+_______________________________________________________
+LIRS
+cache size : 700000
+cache hit : 2058144
+cache miss : 1314329
+hit ratio : 61.027737
+stack size : 1215260
+list size : 7000
+lir capacity: 693000
+hir capacity: 7000
+write count : 2201144
+duration : 1.3145007
+_______________________________________________________
+LIRS
+cache size : 800000
+cache hit : 2074709
+cache miss : 1297764
+hit ratio : 61.51892
+stack size : 1232012
+list size : 8000
+lir capacity: 792000
+hir capacity: 8000
+write count : 2201144
+duration : 1.2140202
+_______________________________________________________
+LIRS
+cache size : 900000
+cache hit : 2093194
+cache miss : 1279279
+hit ratio : 62.06704
+stack size : 1250336
+list size : 9000
+lir capacity: 891000
+hir capacity: 9000
+write count : 2201144
+duration : 1.0746397
+_______________________________________________________
+LIRS
+cache size : 1000000
+cache hit : 2094442
+cache miss : 1278031
+hit ratio : 62.104042
+stack size : 1251540
+list size : 10000
+lir capacity: 990000
+hir capacity: 10000
+write count : 2201144
+duration : 1.0501016
+_______________________________________________________
+LIRS
+cache size : 1100000
+cache hit : 2095444
+cache miss : 1277029
+hit ratio : 62.133755
+stack size : 1252499
+list size : 11000
+lir capacity: 1089000
+hir capacity: 11000
+write count : 2201144
+duration : 1.0140689
+_______________________________________________________
+LIRS
+cache size : 1200000
+cache hit : 2095568
+cache miss : 1276905
+hit ratio : 62.137432
+stack size : 1252577
+list size : 12000
+lir capacity: 1188000
+hir capacity: 12000
+write count : 2201144
+duration : 0.9058895
+_______________________________________________________
+LIRS
+cache size : 1300000
+cache hit : 2106621
+cache miss : 1265852
+hit ratio : 62.46517
+stack size : 1265852
+list size : 0
+lir capacity: 1287000
+hir capacity: 13000
+write count : 2201144
+duration : 0.8686782
+_______________________________________________________
+LIRS
+cache size : 1400000
+cache hit : 2106621
+cache miss : 1265852
+hit ratio : 62.46517
+stack size : 1265852
+list size : 0
+lir capacity: 1386000
+hir capacity: 14000
+write count : 2201144
+duration : 0.8884067
+_______________________________________________________
+LIRS
+cache size : 1500000
+cache hit : 2106621
+cache miss : 1265852
+hit ratio : 62.46517
+stack size : 1265852
+list size : 0
+lir capacity: 1485000
+hir capacity: 15000
+write count : 2201144
+duration : 0.8760786

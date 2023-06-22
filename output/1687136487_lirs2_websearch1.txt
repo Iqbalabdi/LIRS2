@@ -1,0 +1,30 @@
+-----------------------------------------------------
+LIRS2
+cache size : 100
+cache hit : 183
+cache miss : 1328437
+hit ratio : 0.013773691
+Instance2Queue : 67095
+Instance1Queue : 320024
+CoreQueue size : 5
+LIR capacity: 95
+HIR capacity: 5
+write count : 0
+read count : 1328620
+time execution : 1.2629389
+access count : 1328620
+-----------------------------------------------------
+LIRS2
+cache size : 1000
+cache hit : 1686
+cache miss : 1326934
+hit ratio : 0.12689859
+Instance2Queue : 95836
+Instance1Queue : 373954
+CoreQueue size : 50
+LIR capacity: 950
+HIR capacity: 50
+write count : 0
+read count : 1328620
+time execution : 1.4050599
+access count : 1328620

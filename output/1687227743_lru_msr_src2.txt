@@ -1,0 +1,189 @@
+NUM ACCESS: 3372473
+cache size: 100
+cache hit: 1054618
+cache miss: 2317855
+ssd write: 3318195
+hit ratio :  31.2714
+tlba size : 100
+list size : 100
+!LRU|100|1054618|3318195
+NUM ACCESS: 3372473
+cache size: 1000
+cache hit: 1283593
+cache miss: 2088880
+ssd write: 3281962
+hit ratio :  38.0609
+tlba size : 1000
+list size : 1000
+!LRU|1000|1283593|3281962
+NUM ACCESS: 3372473
+cache size: 10000
+cache hit: 1445501
+cache miss: 1926972
+ssd write: 3253610
+hit ratio :  42.8618
+tlba size : 10000
+list size : 10000
+!LRU|10000|1445501|3253610
+NUM ACCESS: 3372473
+cache size: 20000
+cache hit: 1519645
+cache miss: 1852828
+ssd write: 3232726
+hit ratio :  45.0603
+tlba size : 20000
+list size : 20000
+!LRU|20000|1519645|3232726
+NUM ACCESS: 3372473
+cache size: 30000
+cache hit: 1576917
+cache miss: 1795556
+ssd write: 3223667
+hit ratio :  46.7585
+tlba size : 30000
+list size : 30000
+!LRU|30000|1576917|3223667
+NUM ACCESS: 3372473
+cache size: 40000
+cache hit: 1610569
+cache miss: 1761904
+ssd write: 3210891
+hit ratio :  47.7563
+tlba size : 40000
+list size : 40000
+!LRU|40000|1610569|3210891
+NUM ACCESS: 3372473
+cache size: 50000
+cache hit: 1636152
+cache miss: 1736321
+ssd write: 3199678
+hit ratio :  48.5149
+tlba size : 50000
+list size : 50000
+!LRU|50000|1636152|3199678
+NUM ACCESS: 3372473
+cache size: 60000
+cache hit: 1650822
+cache miss: 1721651
+ssd write: 3197372
+hit ratio :  48.9499
+tlba size : 60000
+list size : 60000
+!LRU|60000|1650822|3197372
+NUM ACCESS: 3372473
+cache size: 70000
+cache hit: 1670091
+cache miss: 1702382
+ssd write: 3193919
+hit ratio :  49.5213
+tlba size : 70000
+list size : 70000
+!LRU|70000|1670091|3193919
+NUM ACCESS: 3372473
+cache size: 80000
+cache hit: 1683341
+cache miss: 1689132
+ssd write: 3191684
+hit ratio :  49.9141
+tlba size : 80000
+list size : 80000
+!LRU|80000|1683341|3191684
+NUM ACCESS: 3372473
+cache size: 90000
+cache hit: 1688687
+cache miss: 1683786
+ssd write: 3189463
+hit ratio :  50.0727
+tlba size : 90000
+list size : 90000
+!LRU|90000|1688687|3189463
+NUM ACCESS: 3372473
+cache size: 100000
+cache hit: 1694789
+cache miss: 1677684
+ssd write: 3184101
+hit ratio :  50.2536
+tlba size : 100000
+list size : 100000
+!LRU|100000|1694789|3184101
+NUM ACCESS: 3372473
+cache size: 200000
+cache hit: 1720803
+cache miss: 1651670
+ssd write: 3164886
+hit ratio :  51.0250
+tlba size : 200000
+list size : 200000
+!LRU|200000|1720803|3164886
+NUM ACCESS: 3372473
+cache size: 300000
+cache hit: 2015338
+cache miss: 1357135
+ssd write: 2884925
+hit ratio :  59.7585
+tlba size : 300000
+list size : 300000
+!LRU|300000|2015338|2884925
+NUM ACCESS: 3372473
+cache size: 400000
+cache hit: 2078263
+cache miss: 1294210
+ssd write: 2860791
+hit ratio :  61.6243
+tlba size : 400000
+list size : 400000
+!LRU|400000|2078263|2860791
+NUM ACCESS: 3372473
+cache size: 500000
+cache hit: 2082266
+cache miss: 1290207
+ssd write: 2860757
+hit ratio :  61.7430
+tlba size : 500000
+list size : 500000
+!LRU|500000|2082266|2860757
+NUM ACCESS: 3372473
+cache size: 600000
+cache hit: 2090305
+cache miss: 1282168
+ssd write: 2859943
+hit ratio :  61.9814
+tlba size : 600000
+list size : 600000
+!LRU|600000|2090305|2859943
+NUM ACCESS: 3372473
+cache size: 700000
+cache hit: 2106474
+cache miss: 1265999
+ssd write: 2844149
+hit ratio :  62.4608
+tlba size : 700000
+list size : 700000
+!LRU|700000|2106474|2844149
+NUM ACCESS: 3372473
+cache size: 800000
+cache hit: 2106555
+cache miss: 1265918
+ssd write: 2844146
+hit ratio :  62.4632
+tlba size : 800000
+list size : 800000
+!LRU|800000|2106555|2844146
+NUM ACCESS: 3372473
+cache size: 900000
+cache hit: 2106585
+cache miss: 1265888
+ssd write: 2844141
+hit ratio :  62.4641
+tlba size : 900000
+list size : 900000
+!LRU|900000|2106585|2844141
+NUM ACCESS: 3372473
+cache size: 1000000
+cache hit: 2106588
+cache miss: 1265885
+ssd write: 2844141
+hit ratio :  62.4642
+tlba size : 1000000
+list size : 1000000
+!LRU|1000000|2106588|2844141
