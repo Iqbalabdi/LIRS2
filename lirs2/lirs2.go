@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"lirs2/pkg/orderedmap"
 	"lirs2/simulator"
-	"log"
 	"os"
 	"time"
 )
@@ -34,7 +33,7 @@ type (
 	}
 )
 
-var InfoLogger *log.Logger
+/*var InfoLogger *log.Logger
 
 func init() {
 	f, err := os.OpenFile("logfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -43,7 +42,7 @@ func init() {
 	}
 
 	InfoLogger = log.New(f, "INFO: ", log.LstdFlags)
-}
+}*/
 
 func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 	if HIRSize > 100 || HIRSize < 0 {
@@ -233,7 +232,7 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 	// delete instance1 in queue if access-time is less than bottom instance2
 	iter = LIRS2Object.Instance1Queue.Iter()
 	for _, v, ok := iter.Next(); ok; _, v, ok = iter.Next() {
-		if flag.accessCount < v.(*Instance).accessCount {
+		if flag != nil && flag.accessCount < v.(*Instance).accessCount {
 			break
 		}
 		if _, ok := LIRS2Object.LIRBlock[v.(*Instance).block]; ok {

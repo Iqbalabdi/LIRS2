@@ -26,6 +26,7 @@ func main() {
 		output    *os.File
 		fileInfo  os.FileInfo
 		err       error
+		cachePath string
 	)
 
 	if len(os.Args) < 4 {
@@ -45,7 +46,8 @@ func main() {
 		log.Fatalf("Error reading file %v: %v\n", filePath, err)
 	}
 
-	if cacheList, err = validateTraceSize(os.Args[3:]); err != nil {
+	cachePath = os.Args[3]
+	if cacheList, err = validateTraceSize(cachePath); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
@@ -122,14 +124,44 @@ func readFile(filePath string) (traces []simulator.Trace, err error) {
 	return traces, nil
 }
 
-func validateTraceSize(traceSizeList []string) (cacheList []int, err error) {
-	var cache int
-	for _, size := range traceSizeList {
-		cache, err = strconv.Atoi(size)
+//func validateTraceSize(traceSizeList []string) (cacheList []int, err error) {
+//	var cache int
+//	for _, size := range traceSizeList {
+//		cache, err = strconv.Atoi(size)
+//		if err != nil {
+//			return cacheList, err
+//		}
+//		cacheList = append(cacheList, cache)
+//	}
+//	return cacheList, nil
+//}
+
+func validateTraceSize(traceSizePath string) (cacheList []int, err error) {
+	var (
+		cache int
+		file  *os.File
+	)
+
+	if file, err = os.Open(traceSizePath); err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanLines)
+	for scanner.Scan() {
+		cache, err = strconv.Atoi(scanner.Text())
 		if err != nil {
 			return cacheList, err
 		}
 		cacheList = append(cacheList, cache)
 	}
+	//for _, size := range traceSizeList {
+	//	cache, err = strconv.Atoi(size)
+	//	if err != nil {
+	//		return cacheList, err
+	//	}
+	//	cacheList = append(cacheList, cache)
+	//}
 	return cacheList, nil
 }

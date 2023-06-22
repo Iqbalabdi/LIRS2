@@ -25,3 +25,5 @@ test.go
 /traces
 /traces_out
 /output
+mainV2
+/script_helper
