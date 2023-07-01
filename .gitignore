@@ -21,9 +21,9 @@
 go.work
 test.go
 /converter/split_financial
+/output
 /converter/split_websearch
 /traces
 /traces_out
-/output
 mainV2
 /script_helper

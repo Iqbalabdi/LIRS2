@@ -135,12 +135,14 @@ func (LIRS2Object *LIRS2) handleHIRResidentBlock(data *Instance) {
 	if _, ok := LIRS2Object.Instance2Queue.Get(data.block); ok {
 		LIRS2Object.makeLIR(data)
 		LIRS2Object.Instance2Queue.Delete(data.block)
+		LIRS2Object.removeFromCoreQueue(data.block)
 		LIRS2Object.stackPruning(true)
+	} else {
+		LIRS2Object.CoReQueue.MoveLast(data.block)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
 		LIRS2Object.changeToInstance2(data)
 	}
-	LIRS2Object.CoReQueue.MoveLast(data.block)
 	LIRS2Object.Instance1Queue.Set(data.block, data)
 }
 
@@ -151,12 +153,13 @@ func (LIRS2Object *LIRS2) handleHIRNonResidentBlock(data *Instance) {
 		LIRS2Object.Instance2Queue.Delete(data.block)
 		LIRS2Object.stackPruning(true)
 
+	} else {
+		LIRS2Object.makeHIR(data)
+		LIRS2Object.addToCoreQueue(data.block)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
 		LIRS2Object.changeToInstance2(data)
 	}
-	LIRS2Object.makeHIR(data)
-	LIRS2Object.addToCoreQueue(data.block)
 	LIRS2Object.Instance1Queue.Set(data.block, data)
 }
 
