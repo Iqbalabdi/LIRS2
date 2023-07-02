@@ -33,17 +33,6 @@ type (
 	}
 )
 
-/*var InfoLogger *log.Logger
-
-func init() {
-	f, err := os.OpenFile("logfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-
-	InfoLogger = log.New(f, "INFO: ", log.LstdFlags)
-}*/
-
 func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 	if HIRSize > 100 || HIRSize < 0 {
 		panic("HIRSize must be between 0 and 100")
@@ -77,7 +66,7 @@ func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 	}
 
 	operation := trace.Operation
-	if operation == "W" {
+	if operation == "W" || operation == "w" {
 		LIRS2Object.writeCount++
 	} else {
 		LIRS2Object.readCount++
