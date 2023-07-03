@@ -14,13 +14,13 @@ func main() {
 		f    *os.File
 		err  error
 	)
-	filePath := "../traces/MSR-Cambridge/CAMRESSDPA01-lvm1.csv"
+	filePath := "../traces/MSR-Cambridge/CAMRESWEBA03-lvm2.csv"
 	if file, err = os.Open(filePath); err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
 
-	f, err = os.OpenFile("../traces_out/msr_src1_1", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err = os.OpenFile("../traces_out/msr_web_2", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		fmt.Println(err)
 		return

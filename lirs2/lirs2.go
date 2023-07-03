@@ -3,6 +3,8 @@ package lirs2
 import (
 	"errors"
 	"fmt"
+	"github.com/petar/GoLLRB/llrb"
+	"github.com/tidwall/btree"
 	"lirs2/pkg/orderedmap"
 	"lirs2/simulator"
 	"os"
@@ -29,9 +31,16 @@ type (
 		CoReQueue       *orderedmap.OrderedMap
 		LIRBlock        map[interface{}]int
 		HIRBlock        map[interface{}]int
+		tins2           btree.Map[int, int]
 		Instance2Access map[interface{}]int
 	}
+
+	Node Instance
 )
+
+func (x *Node) Less(than llrb.Item) bool {
+	return x.accessCount < than.(*Node).accessCount
+}
 
 func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 	if HIRSize > 100 || HIRSize < 0 {
@@ -168,18 +177,46 @@ func (LIRS2Object *LIRS2) changeToInstance2(data *Instance) {
 	LIRS2Object.Instance1Queue.Delete(val.(*Instance).block)
 	LIRS2Object.Instance2Queue.Set(val.(*Instance).block, val)
 
-	LIRS2Object.Instance2Access[val.(*Instance).accessCount] = val.(*Instance).block
-	for i := val.(*Instance).accessCount + 1; i <= LIRS2Object.accessCounter; i++ {
-		if block, ok := LIRS2Object.Instance2Access[i]; ok {
-			LIRS2Object.Instance2Queue.MoveToSpecificIndex(val.(*Instance).block, block)
-			break
+	//LIRS2Object.Instance2Access[val.(*Instance).accessCount] = val.(*Instance).block
+	//for i := val.(*Instance).accessCount + 1; i <= LIRS2Object.accessCounter; i++ {
+	//	if block, ok := LIRS2Object.Instance2Access[i]; ok {
+	//		LIRS2Object.Instance2Queue.MoveToSpecificIndex(val.(*Instance).block, block)
+	//		break
+	//	}
+	//}
+	//fmt.Println("ini access count sebelum diset", val.(*Instance).accessCount)
+	//LIRS2Object.tins2.Set(val.(*Instance).accessCount, val.(*Instance).block)
+	//LIRS2Object.tins2.Scan(func(key, value int) bool {
+	//	fmt.Printf("ini akses count %v dan ini blok %v\n", key, value)
+	//	return false
+	//})
+	LIRS2Object.tins2.Set(val.(*Instance).accessCount, val.(*Instance).block)
+	var flag int = 0
+	var block int
+	LIRS2Object.tins2.Ascend(val.(*Instance).accessCount, func(key, value int) bool {
+		flag++
+		if flag == 2 {
+			block = value
+			return false
 		}
+		return true
+	})
+	if block != 0 {
+		LIRS2Object.Instance2Queue.MoveToSpecificIndex(val.(*Instance).block, block)
 	}
+	//fmt.Println("nilai block dan count", block, count)
+	//for i := val.(*Instance).accessCount + 1; i <= LIRS2Object.accessCounter; i++ {
+	//	if block, ok := LIRS2Object.Instance2Access[i]; ok {
+	//		LIRS2Object.Instance2Queue.MoveToSpecificIndex(val.(*Instance).block, block)
+	//		break
+	//	}
+	//}
+
 	//iter := LIRS2Object.Instance2Queue.Iter()
 	//for _, v, ok := iter.Next(); ok; _, v, ok = iter.Next() {
 	//	if val.(*Instance).accessCount < v.(*Instance).accessCount {
 	//		//fmt.Println("move to specific index and access Count", val.(*Instance).accessCount, v.(*Instance).accessCount)
-	//		LIRS2Object.Instance2Queue.MoveToSpecificIndex(val.(*Instance).block, v.(*Instance).block)
+	//LIRS2Object.Instance2Queue.MoveToSpecificIndex(val.(*Instance).block, v.(*Instance).block)
 	//		//fmt.Println("done")
 	//		break
 	//	}
@@ -215,9 +252,10 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 	for k, v, ok := iter.Next(); ok; k, v, ok = iter.Next() {
 		if _, ok := LIRS2Object.LIRBlock[k]; ok {
 			flag = v.(*Instance)
+			//fmt.Print("flag is ", flag.block)
 			break
 		}
-		delete(LIRS2Object.Instance2Access, v.(*Instance).accessCount)
+		LIRS2Object.tins2.Delete(v.(*Instance).accessCount)
 		LIRS2Object.Instance2Queue.PopFirst()
 	}
 

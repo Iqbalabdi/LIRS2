@@ -1,0 +1,346 @@
+pake lir, ga pake index
+-----------------------------------------------------
+LIRS2
+cache size : 100
+cache hit : 220134
+cache miss : 45526088
+hit ratio : 0.48120692
+Instance2Queue : 273
+Instance1Queue : 1394
+CoreQueue size : 1
+LIR capacity: 99
+HIR capacity: 1
+write count : 2170271
+read count : 43575951
+time execution : 35.7496503
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1000
+cache hit : 286436
+cache miss : 45459786
+hit ratio : 0.6261413
+Instance2Queue : 1559
+Instance1Queue : 9876
+CoreQueue size : 10
+LIR capacity: 990
+HIR capacity: 10
+write count : 2170271
+read count : 43575951
+time execution : 43.4167189
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 10000
+cache hit : 715483
+cache miss : 45030739
+hit ratio : 1.5640265
+Instance2Queue : 17554
+Instance1Queue : 112307
+CoreQueue size : 100
+LIR capacity: 9900
+HIR capacity: 100
+write count : 2170271
+read count : 43575951
+time execution : 52.8743252
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 100000
+cache hit : 2410353
+cache miss : 43335869
+hit ratio : 5.268966
+Instance2Queue : 107100
+Instance1Queue : 103781
+CoreQueue size : 993
+LIR capacity: 99000
+HIR capacity: 1000
+write count : 2170271
+read count : 43575951
+time execution : 55.3253976
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 200000
+cache hit : 3225077
+cache miss : 42521145
+hit ratio : 7.049931
+Instance2Queue : 345011
+Instance1Queue : 1461320
+CoreQueue size : 2000
+LIR capacity: 198000
+HIR capacity: 2000
+write count : 2170271
+read count : 43575951
+time execution : 55.7203362
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 300000
+cache hit : 4292134
+cache miss : 41454088
+hit ratio : 9.382488
+Instance2Queue : 410188
+Instance1Queue : 1408564
+CoreQueue size : 1027
+LIR capacity: 297000
+HIR capacity: 3000
+write count : 2170271
+read count : 43575951
+time execution : 78.9147927
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 400000
+cache hit : 4336559
+cache miss : 41409663
+hit ratio : 9.4796
+Instance2Queue : 897212
+Instance1Queue : 4609819
+CoreQueue size : 2759
+LIR capacity: 396000
+HIR capacity: 4000
+write count : 2170271
+read count : 43575951
+time execution : 67.6311151
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 500000
+cache hit : 4452040
+cache miss : 41294182
+hit ratio : 9.7320385
+Instance2Queue : 1090807
+Instance1Queue : 4655469
+CoreQueue size : 5000
+LIR capacity: 495000
+HIR capacity: 5000
+write count : 2170271
+read count : 43575951
+time execution : 94.9408927
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 600000
+cache hit : 4969711
+cache miss : 40776511
+hit ratio : 10.863653
+Instance2Queue : 1613061
+Instance1Queue : 4772268
+CoreQueue size : 6000
+LIR capacity: 594000
+HIR capacity: 6000
+write count : 2170271
+read count : 43575951
+time execution : 101.4714085
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 700000
+cache hit : 6817770
+cache miss : 38928452
+hit ratio : 14.903459
+Instance2Queue : 1009614
+Instance1Queue : 863158
+CoreQueue size : 5140
+LIR capacity: 693000
+HIR capacity: 7000
+write count : 2170271
+read count : 43575951
+time execution : 72.4267583
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 800000
+cache hit : 7057456
+cache miss : 38688766
+hit ratio : 15.427406
+Instance2Queue : 1170759
+Instance1Queue : 4913378
+CoreQueue size : 8000
+LIR capacity: 792000
+HIR capacity: 8000
+write count : 2170271
+read count : 43575951
+time execution : 61.2429416
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 900000
+cache hit : 7989182
+cache miss : 37757040
+hit ratio : 17.464134
+Instance2Queue : 3241189
+Instance1Queue : 4677658
+CoreQueue size : 9000
+LIR capacity: 891000
+HIR capacity: 9000
+write count : 2170271
+read count : 43575951
+time execution : 55.05812
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1000000
+cache hit : 8710229
+cache miss : 37035993
+hit ratio : 19.040323
+Instance2Queue : 1078808
+Instance1Queue : 990920
+CoreQueue size : 5952
+LIR capacity: 990000
+HIR capacity: 10000
+write count : 2170271
+read count : 43575951
+time execution : 50.7837264
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1100000
+cache hit : 8893712
+cache miss : 36852510
+hit ratio : 19.441412
+Instance2Queue : 1410693
+Instance1Queue : 1009373
+CoreQueue size : 2555
+LIR capacity: 1089000
+HIR capacity: 11000
+write count : 2170271
+read count : 43575951
+time execution : 43.8553369
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1200000
+cache hit : 9309964
+cache miss : 36436258
+hit ratio : 20.351328
+Instance2Queue : 1161183
+Instance1Queue : 221294
+CoreQueue size : 10590
+LIR capacity: 1188000
+HIR capacity: 12000
+write count : 2170271
+read count : 43575951
+time execution : 50.5266082
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1300000
+cache hit : 9410743
+cache miss : 36335479
+hit ratio : 20.571629
+Instance2Queue : 1461395
+Instance1Queue : 140784
+CoreQueue size : 3107
+LIR capacity: 1287000
+HIR capacity: 13000
+write count : 2170271
+read count : 43575951
+time execution : 48.461928
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1400000
+cache hit : 9529673
+cache miss : 36216549
+hit ratio : 20.831606
+Instance2Queue : 1468464
+Instance1Queue : 155844
+CoreQueue size : 829
+LIR capacity: 1386000
+HIR capacity: 14000
+write count : 2170271
+read count : 43575951
+time execution : 46.0159379
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1500000
+cache hit : 9476785
+cache miss : 36269437
+hit ratio : 20.715994
+Instance2Queue : 1461545
+Instance1Queue : 1359352
+CoreQueue size : 337
+LIR capacity: 1485000
+HIR capacity: 15000
+write count : 2170271
+read count : 43575951
+time execution : 47.6018194
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1600000
+cache hit : 9370463
+cache miss : 36375759
+hit ratio : 20.483578
+Instance2Queue : 1173158
+Instance1Queue : 1107909
+CoreQueue size : 15303
+LIR capacity: 1584000
+HIR capacity: 16000
+write count : 2170271
+read count : 43575951
+time execution : 53.1040376
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1700000
+cache hit : 9834075
+cache miss : 35912147
+hit ratio : 21.49702
+Instance2Queue : 1472663
+Instance1Queue : 332197
+CoreQueue size : 2070
+LIR capacity: 1683000
+HIR capacity: 17000
+write count : 2170271
+read count : 43575951
+time execution : 48.7822182
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1800000
+cache hit : 9906146
+cache miss : 35840076
+hit ratio : 21.654566
+Instance2Queue : 1470916
+Instance1Queue : 1408767
+CoreQueue size : 3520
+LIR capacity: 1782000
+HIR capacity: 18000
+write count : 2170271
+read count : 43575951
+time execution : 42.7639508
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 1900000
+cache hit : 10062420
+cache miss : 35683802
+hit ratio : 21.996176
+Instance2Queue : 1466252
+Instance1Queue : 1598377
+CoreQueue size : 13191
+LIR capacity: 1881000
+HIR capacity: 19000
+write count : 2170271
+read count : 43575951
+time execution : 52.0570039
+access count : 45746222
+-----------------------------------------------------
+LIRS2
+cache size : 2000000
+cache hit : 9974290
+cache miss : 35771932
+hit ratio : 21.803526
+Instance2Queue : 1466176
+Instance1Queue : 1292982
+CoreQueue size : 91
+LIR capacity: 1980000
+HIR capacity: 20000
+write count : 2170271
+read count : 43575951
+time execution : 47.7173032
+access count : 45746222
