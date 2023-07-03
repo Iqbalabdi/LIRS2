@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/petar/GoLLRB/llrb"
 	"github.com/tidwall/btree"
-	"lirs2/pkg_2/orderedmap"
+	"lirs2/pkg/orderedmap"
 	"lirs2/simulator"
 	"os"
 	"time"
