@@ -25,4 +25,4 @@ test.go
 /converter/split_websearch
 /traces
 /traces_out
-mainV2
+V2main

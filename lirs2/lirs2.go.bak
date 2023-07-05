@@ -3,9 +3,8 @@ package lirs2
 import (
 	"errors"
 	"fmt"
-	"github.com/petar/GoLLRB/llrb"
 	"github.com/tidwall/btree"
-	"lirs2/pkg/orderedmap"
+	"github.com/wk8/go-ordered-map/v2"
 	"lirs2/simulator"
 	"os"
 	"time"
@@ -26,9 +25,9 @@ type (
 		readCount       int
 		LIRSize         int
 		HIRSize         int
-		Instance1Queue  *orderedmap.OrderedMap
-		Instance2Queue  *orderedmap.OrderedMap
-		CoReQueue       *orderedmap.OrderedMap
+		Instance1Queue  *orderedmap.OrderedMap[int, interface{}]
+		Instance2Queue  *orderedmap.OrderedMap[int, interface{}]
+		CoReQueue       *orderedmap.OrderedMap[int, interface{}]
 		LIRBlock        map[interface{}]int
 		HIRBlock        map[interface{}]int
 		tins2           btree.Map[int, int]
@@ -37,10 +36,6 @@ type (
 
 	Node Instance
 )
-
-func (x *Node) Less(than llrb.Item) bool {
-	return x.accessCount < than.(*Node).accessCount
-}
 
 func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 	if HIRSize > 100 || HIRSize < 0 {
@@ -57,9 +52,9 @@ func NewLIRS2(cacheSize int, HIRSize int) *LIRS2 {
 		readCount:       0,
 		LIRSize:         LIRCapacity,
 		HIRSize:         HIRCapacity,
-		Instance1Queue:  orderedmap.NewOrderedMap(),
-		Instance2Queue:  orderedmap.NewOrderedMap(),
-		CoReQueue:       orderedmap.NewOrderedMap(),
+		Instance1Queue:  orderedmap.New[int, interface{}](),
+		Instance2Queue:  orderedmap.New[int, interface{}](),
+		CoReQueue:       orderedmap.New[int, interface{}](),
 		LIRBlock:        make(map[interface{}]int, LIRCapacity),
 		HIRBlock:        make(map[interface{}]int, HIRCapacity),
 		Instance2Access: map[interface{}]int{},
@@ -73,6 +68,7 @@ func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 		block:       trace.Address,
 		accessCount: LIRS2Object.accessCounter,
 	}
+	fmt.Println("cek blok masuk", data.block)
 	operation := trace.Operation
 	if operation == "W" || operation == "w" {
 		LIRS2Object.writeCount++
@@ -81,8 +77,10 @@ func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 	}
 	if len(LIRS2Object.LIRBlock) < LIRS2Object.LIRSize {
 		// LIRBlock is not full; there is space in cache
+		fmt.Println("ini miss sebelum cache penuh")
 		LIRS2Object.miss += 1
 		if _, ok := LIRS2Object.LIRBlock[data.block]; ok {
+			fmt.Println("ini miss dinegasi jadi hit")
 			// block is in LIRBlock, not a miss
 			LIRS2Object.miss -= 1
 			LIRS2Object.hit += 1
@@ -100,12 +98,15 @@ func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 	}
 
 	if _, ok := LIRS2Object.LIRBlock[data.block]; ok {
+		fmt.Println("ini hit di lir")
 		// block is in LIRBlock, hit
 		LIRS2Object.handleLIRBlock(data)
 	} else if _, ok := LIRS2Object.CoReQueue.Get(data.block); ok {
+		fmt.Println("ini hit di resident")
 		// block is in HIRBlock, hit
 		LIRS2Object.handleHIRResidentBlock(data)
 	} else {
+		fmt.Println("ini miss di nonresident")
 		// block is not in LIRBlock or HIRBlock Resident, miss
 		LIRS2Object.handleHIRNonResidentBlock(data)
 	}
@@ -115,7 +116,7 @@ func (LIRS2Object *LIRS2) Get(trace simulator.Trace) error {
 func (LIRS2Object *LIRS2) handleLIRBlock(data *Instance) {
 	LIRS2Object.hit += 1
 	if _, ok := LIRS2Object.Instance2Queue.Get(data.block); ok {
-		if key, _, _ := LIRS2Object.Instance2Queue.GetFirst(); key.(int) == data.block {
+		if pair := LIRS2Object.Instance2Queue.Oldest(); pair.Key == data.block {
 			LIRS2Object.stackPruning(false)
 		} else {
 			LIRS2Object.Instance2Queue.Delete(data.block)
@@ -135,7 +136,7 @@ func (LIRS2Object *LIRS2) handleHIRResidentBlock(data *Instance) {
 		LIRS2Object.removeFromCoreQueue(data.block)
 		LIRS2Object.stackPruning(true)
 	} else {
-		LIRS2Object.CoReQueue.MoveLast(data.block)
+		LIRS2Object.CoReQueue.MoveToBack(data.block)
 	}
 	if _, ok := LIRS2Object.Instance1Queue.Get(data.block); ok {
 		LIRS2Object.changeToInstance2(data)
@@ -203,7 +204,7 @@ func (LIRS2Object *LIRS2) changeToInstance2(data *Instance) {
 		return true
 	})
 	if block != 0 {
-		LIRS2Object.Instance2Queue.MoveToSpecificIndex(val.(*Instance).block, block)
+		LIRS2Object.Instance2Queue.MoveBefore(val.(*Instance).block, block)
 	}
 	//fmt.Println("nilai block dan count", block, count)
 	//for i := val.(*Instance).accessCount + 1; i <= LIRS2Object.accessCounter; i++ {
@@ -226,7 +227,8 @@ func (LIRS2Object *LIRS2) changeToInstance2(data *Instance) {
 
 func (LIRS2Object *LIRS2) addToCoreQueue(block int) {
 	if LIRS2Object.CoReQueue.Len() == LIRS2Object.HIRSize {
-		LIRS2Object.CoReQueue.PopFirst()
+		pair := LIRS2Object.CoReQueue.Oldest()
+		LIRS2Object.CoReQueue.Delete(pair.Key)
 	}
 	LIRS2Object.CoReQueue.Set(block, 1)
 }
@@ -236,9 +238,12 @@ func (LIRS2Object *LIRS2) removeFromCoreQueue(block int) {
 }
 
 func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
+	fmt.Println("bool nya apa ajg", removeLIR)
 	var flag *Instance
 
-	_, val, ok := LIRS2Object.Instance2Queue.PopFirst()
+	pairVal := LIRS2Object.Instance2Queue.Oldest()
+	val, ok := LIRS2Object.Instance2Queue.Delete(pairVal.Key)
+	//_, val, ok := LIRS2Object.Instance2Queue.PopFirst()
 	if !ok {
 		return errors.New("Instance2Queue is empty")
 	}
@@ -249,26 +254,31 @@ func (LIRS2Object *LIRS2) stackPruning(removeLIR bool) error {
 	}
 
 	// delete instance2 in queue if it is not LIR
-	iter := LIRS2Object.Instance2Queue.Iter()
-	for k, v, ok := iter.Next(); ok; k, v, ok = iter.Next() {
-		if _, ok := LIRS2Object.LIRBlock[k.(int)]; ok {
-			flag = v.(*Instance)
+	for pair := LIRS2Object.Instance2Queue.Oldest(); pair != nil; pair = pair.Next() {
+		fmt.Println("next sebelum", pair.Next())
+		if _, ok := LIRS2Object.LIRBlock[pair.Key]; ok {
+			fmt.Println("ini k didalam ", pair.Key)
+			flag = pair.Value.(*Instance)
 			break
 		}
-		LIRS2Object.tins2.Delete(v.(*Instance).accessCount)
-		LIRS2Object.Instance2Queue.PopFirst()
+		LIRS2Object.tins2.Delete(pair.Value.(*Instance).accessCount)
+		fmt.Println("ini k mau diapus", pair.Key)
+		LIRS2Object.Instance2Queue.Delete(pair.Key)
+		fmt.Println("ini k udah diapus", pair.Key)
+		fmt.Println("next sesudah", pair.Next())
 	}
 
 	// delete instance1 in queue if access-time is less than bottom instance2
-	iter = LIRS2Object.Instance1Queue.Iter()
-	for _, v, ok := iter.Next(); ok; _, v, ok = iter.Next() {
-		if flag != nil && flag.accessCount < v.(*Instance).accessCount {
+	for pair := LIRS2Object.Instance1Queue.Oldest(); pair != nil; pair = pair.Next() {
+		if flag != nil && flag.accessCount < pair.Value.(*Instance).accessCount {
+			fmt.Println("apa ini break ygy", flag.accessCount, pair.Value.(*Instance).accessCount)
 			break
 		}
-		if _, ok := LIRS2Object.LIRBlock[v.(*Instance).block]; ok {
-			delete(LIRS2Object.LIRBlock, v.(*Instance).block)
+		fmt.Println("ini artinya blok lir dihapus")
+		if _, ok := LIRS2Object.LIRBlock[pair.Key]; ok {
+			delete(LIRS2Object.LIRBlock, pair.Key)
 		}
-		LIRS2Object.Instance1Queue.PopFirst()
+		LIRS2Object.Instance1Queue.Delete(pair.Key)
 	}
 	return nil
 }
