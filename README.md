@@ -1,6 +1,6 @@
 # LIRS2
 Repository for final project :  
-Simulation and Analysis of cache replacement algorithms LIRS2 (Low Inter-reference Recency Set 2)
+Simulation and Analysis of the Cache Replacement Policy Algorithm LIRS2 (Low Inter-reference Recency Set 2)
 
 ## How to run
 1. Get module
