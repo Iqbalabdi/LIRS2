@@ -3,7 +3,7 @@ Repository for final project :
 Simulation and Analysis of the Cache Replacement Policy Algorithm LIRS2 (Low Inter-reference Recency Set 2)
 
 ## Paper
-https://dl.acm.org/doi/10.1145/3456727.3463772
+[LIRS2: an improved LIRS replacement algorithm](https://dl.acm.org/doi/10.1145/3456727.3463772)
 
 ## How to run
 1. Get module
